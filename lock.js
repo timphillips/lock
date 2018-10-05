@@ -47,10 +47,8 @@ const rotation = mouseDown.pipe(
       takeUntil(mouseUp)
     )
   ),
-  scan((currentRotation, rotationAdjustment) => {
-    const newRotation = currentRotation + rotationAdjustment;
-    return newRotation;
-  }, 0)
+  scan((currentRotation, rotationAdjustment) => currentRotation + rotationAdjustment, 0),
+  map(newRotation => Math.ceil(newRotation / 9) * 9) // 360 / 40 = 9 degrees per number
 );
 
 rotation.subscribe(newRotation => {
