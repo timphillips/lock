@@ -3,3 +3,32 @@
   transform-box: fill-box;
   transform-origin: 50% 50%;
 }
+
+.tick-number {
+  font: bold 22px sans-serif;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.tick-primary {
+  width: 1px;
+  height: 20px;
+  stroke-width: 6;
+  stroke: black;
+}
+
+.tick-secondary {
+  width: 1px;
+  height: 15px;
+  stroke-width: 2;
+  stroke: black;
+}
+
+svg {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
