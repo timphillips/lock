@@ -3,21 +3,15 @@ const {
   combineLatest,
   distinctUntilChanged,
   filter,
-  flatMap,
   map,
   pairwise,
   scan,
+  share,
   startWith,
   switchMap,
-  takeUntil,
-  tap,
-  share
+  takeUntil
 } = rxjs.operators;
-const { fromEvent, interval, of, never } = rxjs;
-
-const mouseDown = fromEvent(document, "mousedown");
-const mouseUp = fromEvent(document, "mouseup");
-const mouseMove = fromEvent(document, "mousemove");
+const { fromEvent, never, of } = rxjs;
 
 /**
  * Calculates the angle (in degrees) from three points.
@@ -36,118 +30,169 @@ function calculateAngleDegrees(point1, point2, point3) {
   return ((angleOfPoint3 - angleOfPoint2) * 180) / Math.PI;
 }
 
-const numberOfTicks = 40;
-const degreesPerTick = 360 / numberOfTicks;
-const origin = {
-  x: 200,
-  y: 200
-};
+/**
+ * Returns an observable that emits the current rotation of the lock's spinner element in the DOM.
+ * Computed based on the given mouse drag events.
+ *
+ * @param mouseDownStream - Observable emitting mouse down events.
+ * @param mouseUpStream - Observable emitting mouse up events.
+ * @param mouseMoveStream - Observable emitting mouse move events.
+ * @param numberCount - Number of ticks in this combination lock (typically 40).
+ */
+function createRotationStream(mouseDownStream, mouseUpStream, mouseMoveStream, numberCount) {
+  const degreesPerNumber = 360 / numberCount;
+  const origin = {
+    x: 200,
+    y: 200
+  };
 
-const rotation = mouseDown.pipe(
-  switchMap(() =>
-    mouseMove.pipe(
-      pairwise(),
-      map(([previousMouseMove, nextMouseMove]) => {
-        var point1 = {
-          x: previousMouseMove.clientX,
-          y: previousMouseMove.clientY
-        };
-        var point2 = {
-          x: nextMouseMove.clientX,
-          y: nextMouseMove.clientY
-        };
-        return calculateAngleDegrees(origin, point1, point2);
-      }),
-      takeUntil(mouseUp)
-    )
-  ),
-  scan((currentRotation, rotationAdjustment) => {
-    const newRotation = currentRotation + rotationAdjustment;
-    if (newRotation >= 360) {
-      return newRotation - 360;
-    }
-    if (newRotation <= -360) {
-      return newRotation + 360;
-    }
-    return newRotation;
-  }, 0),
-  map(newRotation => Math.ceil(newRotation / degreesPerTick) * degreesPerTick),
-  distinctUntilChanged()
-);
-
-const number = rotation.pipe(
-  startWith(0),
-  map(rotation => {
-    const number = Math.abs(rotation / degreesPerTick);
-    return rotation > 0 ? numberOfTicks - number : number;
-  }),
-  pairwise(),
-  switchMap(([previous, next]) => {
-    const ticksBetweenIfCounterclockwise = Math.min(
-      ...[next - previous, next - previous + numberOfTicks, numberOfTicks].filter(num => num >= 0)
-    );
-    const ticksBetweenIfClockwise = Math.min(
-      ...[previous - next, previous - next + numberOfTicks, numberOfTicks].filter(num => num >= 0)
-    );
-
-    const output = [];
-    if (ticksBetweenIfCounterclockwise < ticksBetweenIfClockwise) {
-      while (previous != next) {
-        if (previous === numberOfTicks - 1) {
-          previous = -1;
-        }
-        output.push(++previous);
+  return mouseDownStream.pipe(
+    switchMap(() =>
+      mouseMoveStream.pipe(
+        pairwise(),
+        map(([previousMouseMove, nextMouseMove]) => {
+          const point1 = {
+            x: previousMouseMove.clientX,
+            y: previousMouseMove.clientY
+          };
+          const point2 = {
+            x: nextMouseMove.clientX,
+            y: nextMouseMove.clientY
+          };
+          return calculateAngleDegrees(origin, point1, point2);
+        }),
+        takeUntil(mouseUpStream)
+      )
+    ),
+    scan((currentRotation, rotationAdjustment) => {
+      const newRotation = currentRotation + rotationAdjustment;
+      if (newRotation >= 360) {
+        return newRotation - 360;
       }
-    } else {
-      while (previous != next) {
-        if (previous === 0) {
-          previous = numberOfTicks;
-        }
-        output.push(--previous);
+      if (newRotation <= -360) {
+        return newRotation + 360;
       }
-    }
-    return of(...output);
-  }),
-  share()
-);
+      return newRotation;
+    }, 0),
+    map(newRotation => Math.ceil(newRotation / degreesPerNumber) * degreesPerNumber),
+    distinctUntilChanged()
+  );
+}
 
-number.subscribe();
+/**
+ * Returns an observable that emits the lock's current number.
+ *
+ * @param rotationStream - Observable emitting the current rotation transformation of the lock element in the DOM.
+ * @param numberCount - Number of ticks in this combination lock (typically 40).
+ */
+function createNumberStream(rotationStream, numberCount) {
+  return rotationStream.pipe(
+    startWith(0),
+    map(rotation => {
+      const number = Math.abs(rotation / (360 / numberCount));
+      return rotation > 0 ? numberCount - number : number;
+    }),
+    pairwise(),
+    switchMap(([previous, next]) => {
+      const numbersBetweenIfCounterclockwise = Math.min(
+        ...[next - previous, next - previous + numberCount, numberCount].filter(num => num >= 0)
+      );
+      const numbersBetweenIfClockwise = Math.min(
+        ...[previous - next, previous - next + numberCount, numberCount].filter(num => num >= 0)
+      );
 
-const direction = number.pipe(
-  pairwise(),
-  map(([previousNumber, nextNumber]) => {
-    if (previousNumber === nextNumber) {
-      return undefined;
-    }
-    if (previousNumber === 39 && nextNumber === 0) {
-      return "counterclockwise";
-    }
-    if (previousNumber === 0 && nextNumber === 39) {
-      return "clockwise";
-    }
-    return nextNumber >= previousNumber ? "counterclockwise" : "clockwise";
-  }),
-  filter(value => value !== undefined),
-  distinctUntilChanged()
-);
+      const output = [];
+      if (numbersBetweenIfCounterclockwise < numbersBetweenIfClockwise) {
+        while (previous != next) {
+          if (previous === numberCount - 1) {
+            previous = -1;
+          }
+          output.push(++previous);
+        }
+      } else {
+        while (previous != next) {
+          if (previous === 0) {
+            previous = numberCount;
+          }
+          output.push(--previous);
+        }
+      }
+      return of(...output);
+    }),
+    share()
+  );
+}
 
-const reset = direction
-  .pipe(
-    switchMap(dir => {
-      if (dir === "clockwise") {
-        return number.pipe(
+/**
+ * Returns an observable that emits "clockwise" or "counterclockwise" when the rotation direction changes.
+ *
+ * @param numberStream - Observable emitting the combination lock's current number.
+ * @param numberCount - Number of ticks in this combination lock (typically 40).
+ */
+function createDirectionStream(numberStream, numberCount) {
+  return numberStream.pipe(
+    pairwise(),
+    map(([previous, next]) => {
+      if (previous === next) {
+        return undefined;
+      }
+      if (previous === numberCount - 1 && next === 0) {
+        return "counterclockwise";
+      }
+      if (previous === 0 && next === numberCount - 1) {
+        return "clockwise";
+      }
+      return next >= previous ? "counterclockwise" : "clockwise";
+    }),
+    filter(value => value !== undefined),
+    distinctUntilChanged()
+  );
+}
+
+/**
+ * Returns an observable that emits when the lock is reset.
+ *
+ * @param numberStream - Observable emitting the combination lock's current number.
+ * @param directionStream - Observable emitting "clockwise" or "counterclockwise" when the rotation direction changes.
+ */
+function createResetStream(numberStream, directionStream) {
+  return directionStream.pipe(
+    switchMap(direction => {
+      if (direction === "clockwise") {
+        // when rotating clockwise, wait to see 0 three times
+        return numberStream.pipe(
           filter(number => number === 0),
-          tap(value => console.log("test 3")),
-          bufferCount(3)
+          bufferCount(3),
+          mapTo(true)
         );
       }
-      return never();
+      return never(); // reset will never happen when rotating counterclockwise
     })
-  )
-  .subscribe(console.log);
+  );
+}
 
-const target = document.getElementById("combo");
+function initializeCombinationLock() {
+  const numberCount = 40;
+  const mouseDownStream = fromEvent(document, "mousedown");
+  const mouseUpStream = fromEvent(document, "mouseup");
+  const mouseMoveStream = fromEvent(document, "mousemove");
 
-rotation.subscribe(newRotation => {
-  target.setAttribute("transform", `rotate(${newRotation})`);
-});
+  const rotationStream = createRotationStream(mouseDownStream, mouseUpStream, mouseMoveStream, numberCount);
+  const numberStream = createNumberStream(rotationStream, numberCount);
+  const directionStream = createDirectionStream(numberStream, numberCount);
+  const resetStream = createResetStream(numberStream, directionStream);
+
+  const target = document.getElementById("combo");
+
+  rotationStream.subscribe(newRotation => {
+    target.setAttribute("transform", `rotate(${newRotation})`);
+  });
+
+  // debug output
+  numberStream.subscribe(number => console.log("Number", number));
+  directionStream.subscribe(direction => console.log("Direction", direction));
+  resetStream.subscribe(() => console.log("Reset!"));
+}
+
+// Here we go!
+initializeCombinationLock();
