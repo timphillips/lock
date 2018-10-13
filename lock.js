@@ -1,15 +1,18 @@
 const {
   bufferCount,
-  combineLatest,
   distinctUntilChanged,
+  debounceTime,
+  combineLatest,
   filter,
   map,
+  mapTo,
   pairwise,
   scan,
   share,
   startWith,
   switchMap,
-  takeUntil
+  takeUntil,
+  withLatestFrom
 } = rxjs.operators;
 const { fromEvent, never, of } = rxjs;
 
@@ -126,7 +129,7 @@ function createNumberStream(rotationStream, numberCount) {
 /**
  * Returns an observable that emits "clockwise" or "counterclockwise" when the rotation direction changes.
  *
- * @param numberStream - Observable emitting the combination lock's current number.
+ * @param numberStream - Observable emitting the lock's current number.
  * @param numberCount - Number of ticks in this combination lock (typically 40).
  */
 function createDirectionStream(numberStream, numberCount) {
@@ -152,7 +155,7 @@ function createDirectionStream(numberStream, numberCount) {
 /**
  * Returns an observable that emits when the lock is reset.
  *
- * @param numberStream - Observable emitting the combination lock's current number.
+ * @param numberStream - Observable emitting the lock's current number.
  * @param directionStream - Observable emitting "clockwise" or "counterclockwise" when the rotation direction changes.
  */
 function createResetStream(numberStream, directionStream) {
@@ -167,12 +170,46 @@ function createResetStream(numberStream, directionStream) {
         );
       }
       return never(); // reset will never happen when rotating counterclockwise
-    })
+    }),
+    startWith(true)
+  );
+}
+
+/**
+ * Returns an observable that emits when the lock is unlocked.
+ *
+ * @param resetStream - Observable emitting when the lock is reset.
+ * @param numberStream - Observable emitting the lock's current number.
+ * @param directionStream - Observable emitting "clockwise" or "counterclockwise" when the rotation direction changes.
+ * @param combination - Solution for the combination lock as an array of three numbers.
+ */
+function createUnlockStream(resetStream, numberStream, directionStream, combination) {
+  return resetStream.pipe(
+    switchMap(() =>
+      directionStream.pipe(
+        withLatestFrom(numberStream.pipe(pairwise())),
+        filter(([direction, [previousNumber]]) => direction === "counterclockwise" && previousNumber === combination[0])
+      )
+    ),
+    switchMap(() =>
+      directionStream.pipe(
+        withLatestFrom(numberStream.pipe(pairwise())),
+        filter(([direction, [previousNumber]]) => direction === "clockwise" && previousNumber === combination[1])
+      )
+    ),
+    switchMap(() =>
+      numberStream.pipe(
+        debounceTime(100),
+        filter(number => number === combination[2])
+      )
+    )
   );
 }
 
 function initializeCombinationLock() {
   const numberCount = 40;
+  const combination = [Math.floor(Math.random() * 40), Math.floor(Math.random() * 40), Math.floor(Math.random() * 40)];
+
   const mouseDownStream = fromEvent(document, "mousedown");
   const mouseUpStream = fromEvent(document, "mouseup");
   const mouseMoveStream = fromEvent(document, "mousemove");
@@ -181,6 +218,7 @@ function initializeCombinationLock() {
   const numberStream = createNumberStream(rotationStream, numberCount);
   const directionStream = createDirectionStream(numberStream, numberCount);
   const resetStream = createResetStream(numberStream, directionStream);
+  const unlockStream = createUnlockStream(resetStream, numberStream, directionStream, combination);
 
   const target = document.getElementById("combo");
 
@@ -191,7 +229,8 @@ function initializeCombinationLock() {
   // debug output
   numberStream.subscribe(number => console.log("Number", number));
   directionStream.subscribe(direction => console.log("Direction", direction));
-  resetStream.subscribe(() => console.log("Reset!"));
+  resetStream.subscribe(() => console.log("Reset"));
+  unlockStream.subscribe(() => console.log("Unlock"));
 }
 
 // Here we go!
