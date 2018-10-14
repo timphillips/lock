@@ -1,34 +1,109 @@
-#combo {
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  color: #333;
+  font-family: "Arial";
+}
+
+/* Lock SVG */
+
+.lock-container {
+  position: relative;
+  width: 40%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.lock {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.lock-handle {
+  fill: none;
+  stroke: #000000;
+  stroke-width: 40;
+}
+
+.lock-circle-outer {
+  fill: rgb(0, 0, 0);
+  stroke-width: 0;
+}
+
+.lock-circle-inner {
+  fill: rgb(255, 255, 255);
+  stroke-width: 0;
+}
+
+.lock-circle-center {
+  fill: rgb(0, 0, 0);
+  stroke-width: 3;
+}
+
+.lock-dial {
+  fill: rgb(255, 110, 110);
+  stroke-width: 1;
+}
+
+.lock-spinner {
   cursor: pointer;
   transform-box: fill-box;
   transform-origin: 50% 50%;
 }
 
-.tick-number {
-  font: bold 22px sans-serif;
+.lock-number {
+  font: bold 40px sans-serif;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
 
-.tick-primary {
+.lock-tick-primary {
   width: 1px;
-  height: 20px;
-  stroke-width: 6;
+  height: 18px;
+  stroke-width: 12;
   stroke: black;
 }
 
-.tick-secondary {
+.lock-tick-secondary {
   width: 1px;
-  height: 15px;
-  stroke-width: 2;
+  height: 10px;
+  stroke-width: 4;
   stroke: black;
 }
 
-svg {
-  display: inline-block;
+/* Meta box */
+
+.meta {
   position: absolute;
-  top: 0;
   left: 0;
+  top: 0;
+  width: 270px;
+  margin-left: 20px;
+  margin-top: 20px;
+  padding: 20px;
+  border: 3px solid #333;
+  border-radius: 25px;
+}
+
+.meta-paragraph {
+  text-align: center;
+  font-size: 15px;
+  margin-top: 0;
+}
+
+.meta-solution {
+  background-color: #0099cc;
+  border-radius: 30px;
+  padding: 20px;
+  margin: 0 20px;
+  font-size: 35px;
 }

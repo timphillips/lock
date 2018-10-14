@@ -1,8 +1,8 @@
 const {
   bufferCount,
-  distinctUntilChanged,
-  debounceTime,
   combineLatest,
+  debounceTime,
+  distinctUntilChanged,
   filter,
   map,
   mapTo,
@@ -42,18 +42,15 @@ function calculateAngleDegrees(point1, point2, point3) {
  * @param mouseMoveStream - Observable emitting mouse move events.
  * @param numberCount - Number of ticks in this combination lock (typically 40).
  */
-function createRotationStream(mouseDownStream, mouseUpStream, mouseMoveStream, numberCount) {
+function createRotationStream(getOriginCoordinates, mouseDownStream, mouseUpStream, mouseMoveStream, numberCount) {
   const degreesPerNumber = 360 / numberCount;
-  const origin = {
-    x: 200,
-    y: 200
-  };
 
   return mouseDownStream.pipe(
     switchMap(() =>
       mouseMoveStream.pipe(
         pairwise(),
         map(([previousMouseMove, nextMouseMove]) => {
+          const origin = getOriginCoordinates();
           const point1 = {
             x: previousMouseMove.clientX,
             y: previousMouseMove.clientY
@@ -83,7 +80,7 @@ function createRotationStream(mouseDownStream, mouseUpStream, mouseMoveStream, n
 }
 
 /**
- * Returns an observable that emits the lock's current number.
+ * Returns an observable that emits the number that the lock's dial is pointing at.
  *
  * @param rotationStream - Observable emitting the current rotation transformation of the lock element in the DOM.
  * @param numberCount - Number of ticks in this combination lock (typically 40).
@@ -206,24 +203,51 @@ function createUnlockStream(resetStream, numberStream, directionStream, combinat
   );
 }
 
+function getNewCombination() {
+  var combination = [];
+  while (combination.length < 3) {
+    const number = Math.floor(Math.random() * 40);
+    if (combination.indexOf(number) === -1 && !(combination.length === 0 && number === 0)) {
+      combination.push(number);
+    }
+  }
+  return combination;
+}
+
 function initializeCombinationLock() {
   const numberCount = 40;
-  const combination = [Math.floor(Math.random() * 40), Math.floor(Math.random() * 40), Math.floor(Math.random() * 40)];
+  const combination = getNewCombination();
+
+  const solutionElement = document.getElementById("meta-solution");
+  solutionElement.innerHTML = combination.join(" - ");
 
   const mouseDownStream = fromEvent(document, "mousedown");
   const mouseUpStream = fromEvent(document, "mouseup");
   const mouseMoveStream = fromEvent(document, "mousemove");
 
-  const rotationStream = createRotationStream(mouseDownStream, mouseUpStream, mouseMoveStream, numberCount);
+  const spinnerElement = document.getElementById("lock-spinner");
+  const getOriginCoordinates = () => {
+    const bounding = spinnerElement.getBoundingClientRect();
+    return {
+      x: bounding.x + bounding.width / 2,
+      y: bounding.y + bounding.height / 2
+    };
+  };
+
+  const rotationStream = createRotationStream(
+    getOriginCoordinates,
+    mouseDownStream,
+    mouseUpStream,
+    mouseMoveStream,
+    numberCount
+  );
   const numberStream = createNumberStream(rotationStream, numberCount);
   const directionStream = createDirectionStream(numberStream, numberCount);
   const resetStream = createResetStream(numberStream, directionStream);
   const unlockStream = createUnlockStream(resetStream, numberStream, directionStream, combination);
 
-  const target = document.getElementById("combo");
-
   rotationStream.subscribe(newRotation => {
-    target.setAttribute("transform", `rotate(${newRotation})`);
+    spinnerElement.setAttribute("transform", `rotate(${newRotation})`);
   });
 
   // debug output
