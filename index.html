@@ -8,60 +8,61 @@
     <link rel="stylesheet" type="text/css" href="lock.css">
 </head>
 
-<body>
+<body id="body">
     <div class="meta">
-        <p class="meta-paragraph">An interactive <a target="_blank" href="https://en.wikipedia.org/wiki/Combination_lock#Single-dial_locks">single-dial</a>
+        <p class="meta-paragraph">An interactive <a target="_blank" href="https://en.wikipedia.org/wiki/Combination_lock#Single-dial_locks"
+                title="To reset:&#13;Turn the dial at least three times to the right (clockwise).&#13;&#13;To unlock:&#13;Turn the dial to the right and stop at the first number. &#13;Turn the dial to the left, going past zero and the first number. Then stop at the second number.&#13;Turn the dial to the right and go directly to the last number.">single-dial</a>
             combination lock built with <a target="_blank" href="https://rxjs-dev.firebaseapp.com/">rxjs</a>.</p>
         <p class="meta-paragraph">Source code on <a target="_blank" href="https://github.com/timphillips/lock">GitHub</a>.</p>
         <p class="meta-paragraph meta-solution" id="meta-solution"></p>
     </div>
     <div class="lock-container">
         <svg viewBox="0 0 400 700" class="lock">
-            <path d="m 320,356 v -50 c 0,-50 0,-150 -120,-150 -120,0 -120,100 -120,150 v 100" class="lock-handle" />
+            <path d="m 320,361 v -50 c 0,-50 0,-150 -120,-150 -120,0 -120,100 -120,150 v 100" id="lock-handle" class="lock-handle" />
             <circle cx="200" cy="500" r="200" class="lock-circle-outer" />
             <g id="lock-spinner" class="lock-spinner">
                 <circle cx="200" cy="500" r="160" class="lock-circle-inner" />
                 <circle cx="200" cy="500" r="50" class="lock-circle-center" />
-                <rect x="200" y="340" class="lock-tick-primary"></rect>
-                <rect x="200" y="340" transform="rotate(9 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(18 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(27 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(36 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(45 200 500)" class="lock-tick-primary"></rect>
-                <rect x="200" y="340" transform="rotate(54 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(63 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(72 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(81 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(90 200 500)" class="lock-tick-primary"></rect>
-                <rect x="200" y="340" transform="rotate(99 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(108 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(117 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(126 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(135 200 500)" class="lock-tick-primary"></rect>
-                <rect x="200" y="340" transform="rotate(144 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(153 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(162 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(171 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(180 200 500)" class="lock-tick-primary"></rect>
-                <rect x="200" y="340" transform="rotate(189 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(198 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(207 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(216 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(225 200 500)" class="lock-tick-primary"></rect>
-                <rect x="200" y="340" transform="rotate(234 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(243 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(252 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(261 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(270 200 500)" class="lock-tick-primary"></rect>
-                <rect x="200" y="340" transform="rotate(279 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(288 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(297 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(306 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(315 200 500)" class="lock-tick-primary"></rect>
-                <rect x="200" y="340" transform="rotate(324 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(333 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(342 200 500)" class="lock-tick-secondary"></rect>
-                <rect x="200" y="340" transform="rotate(351 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="346" class="lock-tick-primary"></rect>
+                <rect x="200" y="342" transform="rotate(9 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(18 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(27 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(36 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="346" transform="rotate(45 200 500)" class="lock-tick-primary"></rect>
+                <rect x="200" y="342" transform="rotate(54 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(63 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(72 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(81 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="346" transform="rotate(90 200 500)" class="lock-tick-primary"></rect>
+                <rect x="200" y="342" transform="rotate(99 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(108 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(117 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(126 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="346" transform="rotate(135 200 500)" class="lock-tick-primary"></rect>
+                <rect x="200" y="342" transform="rotate(144 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(153 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(162 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(171 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="346" transform="rotate(180 200 500)" class="lock-tick-primary"></rect>
+                <rect x="200" y="342" transform="rotate(189 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(198 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(207 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(216 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="346" transform="rotate(225 200 500)" class="lock-tick-primary"></rect>
+                <rect x="200" y="342" transform="rotate(234 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(243 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(252 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(261 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="346" transform="rotate(270 200 500)" class="lock-tick-primary"></rect>
+                <rect x="200" y="342" transform="rotate(279 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(288 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(297 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(306 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="346" transform="rotate(315 200 500)" class="lock-tick-primary"></rect>
+                <rect x="200" y="342" transform="rotate(324 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(333 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(342 200 500)" class="lock-tick-secondary"></rect>
+                <rect x="200" y="342" transform="rotate(351 200 500)" class="lock-tick-secondary"></rect>
                 <text x="190" y="410" transform="rotate(0 200 500)" class="lock-number">0</text>
                 <text x="190" y="410" transform="rotate(45 200 500)" class="lock-number">5</text>
                 <text x="182" y="410" transform="rotate(90 200 500)" class="lock-number">10</text>

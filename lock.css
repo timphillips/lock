@@ -7,6 +7,13 @@ body {
   margin: 0;
   color: #333;
   font-family: "Arial";
+  background-color: #fbcfcf;
+  background-image: radial-gradient(#fbcfcf 20%, #ddd6f3 100%);
+}
+
+body.unlocked {
+  background-color: #e6ffe6;
+  background-image: radial-gradient(#e6ffe6 20%, #ddd6f3 100%);
 }
 
 /* Lock SVG */
@@ -27,9 +34,11 @@ body {
 }
 
 .lock-handle {
+  cursor: pointer;
   fill: none;
   stroke: #000000;
   stroke-width: 40;
+  transition: stroke 0.2s linear;
 }
 
 .lock-circle-outer {
@@ -43,7 +52,6 @@ body {
 }
 
 .lock-circle-center {
-  fill: rgb(0, 0, 0);
   stroke-width: 3;
 }
 
@@ -55,7 +63,9 @@ body {
 .lock-spinner {
   cursor: pointer;
   transform-box: fill-box;
+  stroke: black;
   transform-origin: 50% 50%;
+  transition: fill 0.2s linear, stroke 0.2s linear;
 }
 
 .lock-number {
@@ -70,14 +80,39 @@ body {
   width: 1px;
   height: 18px;
   stroke-width: 12;
-  stroke: black;
 }
 
 .lock-tick-secondary {
   width: 1px;
   height: 10px;
   stroke-width: 4;
-  stroke: black;
+}
+
+.lock-handle--open {
+  transform: translateY(-50px);
+  transition: 0.3s ease-out;
+}
+
+.lock-handle--closed {
+  animation: lock-closed-animation 0.5s;
+}
+
+@keyframes lock-closed-animation {
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.lock-handle:hover {
+  stroke: #333;
+}
+
+.lock-spinner:hover {
+  fill: #333;
+  stroke: #333;
 }
 
 /* Meta box */
@@ -92,6 +127,7 @@ body {
   padding: 20px;
   border: 3px solid #333;
   border-radius: 25px;
+  background-color: #fff;
 }
 
 .meta-paragraph {
@@ -101,7 +137,7 @@ body {
 }
 
 .meta-solution {
-  background-color: #0099cc;
+  background-color: #bdb0e8;
   border-radius: 30px;
   padding: 20px;
   margin: 0 20px;
