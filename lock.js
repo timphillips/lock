@@ -6,6 +6,7 @@
   filter,
   map,
   mapTo,
+  merge,
   pairwise,
   scan,
   share,
@@ -22,7 +23,7 @@ const { fromEvent, never, of } = rxjs;
  * Calculates the angle (in degrees) from two vectors, one from point P1 to P2 and one from P1 to P3.
  * Adapted from https://stackoverflow.com/a/31334882.
  */
-function calculateAngleDegrees(point1, point2, point3) {
+function calculateAngleInDegrees(point1, point2, point3) {
   const point2AtOrigin = {
     x: point2.x - point1.x,
     y: point2.y - point1.y
@@ -56,14 +57,14 @@ function createRotationStream(getOriginCoordinates, mouseDownStream, mouseUpStre
         map(([previousMouseMove, nextMouseMove]) => {
           const origin = getOriginCoordinates();
           const point1 = {
-            x: previousMouseMove.clientX,
-            y: previousMouseMove.clientY
+            x: previousMouseMove.x,
+            y: previousMouseMove.y
           };
           const point2 = {
-            x: nextMouseMove.clientX,
-            y: nextMouseMove.clientY
+            x: nextMouseMove.x,
+            y: nextMouseMove.y
           };
-          return calculateAngleDegrees(origin, point1, point2);
+          return calculateAngleInDegrees(origin, point1, point2);
         }),
         takeUntil(mouseUpStream)
       )
@@ -87,7 +88,7 @@ function createRotationStream(getOriginCoordinates, mouseDownStream, mouseUpStre
  * Returns an observable that emits the number that the lock's dial is pointing to.
  *
  * @param rotationStream Observable emitting the current rotation transformation of the lock element in the DOM.
- * @param tickCount Number of ticks in this combination lock (typically 40).
+ * @param tickCount Number of ticks in this combination lock.
  */
 function createNumberStream(rotationStream, tickCount) {
   return rotationStream.pipe(
@@ -241,10 +242,35 @@ function initializeCombinationLock() {
   const combination = getNewCombination();
   solutionElement.innerHTML = combination.join(" • ");
 
+  const mouseEventToCoordinate = mouseEvent => {
+    mouseEvent.preventDefault();
+    return {
+      x: mouseEvent.clientX,
+      y: mouseEvent.clientY
+    };
+  };
+
+  const touchEventToCoordinate = touchEvent => {
+    touchEvent.preventDefault();
+    return {
+      x: touchEvent.changedTouches[0].clientX,
+      y: touchEvent.changedTouches[0].clientY
+    };
+  };
+
+  const mouseDownStream = fromEvent(document, "mousedown").pipe(map(mouseEventToCoordinate));
+  const mouseUpStream = fromEvent(document, "mouseup").pipe(map(mouseEventToCoordinate));
+  const mouseMoveStream = fromEvent(document, "mousemove").pipe(map(mouseEventToCoordinate));
+  const touchStartStream = fromEvent(document, "touchstart").pipe(map(touchEventToCoordinate));
+  const touchEndStream = fromEvent(document, "touchend").pipe(map(touchEventToCoordinate));
+  const touchMoveStream = fromEvent(document, "touchmove").pipe(map(touchEventToCoordinate));
   const handleClickStream = fromEvent(handleElement, "click");
-  const mouseDownStream = fromEvent(document, "mousedown");
-  const mouseUpStream = fromEvent(document, "mouseup");
-  const mouseMoveStream = fromEvent(document, "mousemove");
+  const handleTouchEndStream = fromEvent(document, "touchend");
+
+  const handleStream = handleClickStream.pipe(merge(handleTouchEndStream));
+  const moveStartStream = mouseDownStream.pipe(merge(touchStartStream));
+  const moveEndStream = mouseUpStream.pipe(merge(touchEndStream));
+  const moveStream = mouseMoveStream.pipe(merge(touchMoveStream));
 
   const getOriginCoordinates = () => {
     const bounding = spinnerElement.getBoundingClientRect();
@@ -256,9 +282,9 @@ function initializeCombinationLock() {
 
   const rotationStream = createRotationStream(
     getOriginCoordinates,
-    mouseDownStream,
-    mouseUpStream,
-    mouseMoveStream,
+    moveStartStream,
+    moveEndStream,
+    moveStream,
     tickCount
   );
   const numberStream = createNumberStream(rotationStream, tickCount);
@@ -274,7 +300,7 @@ function initializeCombinationLock() {
     },
     false
   );
-  handleClickStream.pipe(withLatestFrom(unlockedStream)).subscribe(([_, unlocked]) => {
+  handleStream.pipe(withLatestFrom(unlockedStream)).subscribe(([_, unlocked]) => {
     if (unlocked) {
       handleElement.classList.add("lock-handle--open");
       bodyElement.classList.add("unlocked");

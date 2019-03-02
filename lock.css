@@ -9,6 +9,7 @@ body {
   font-family: "Arial";
   background-color: #fbcfcf;
   background-image: radial-gradient(#fbcfcf 20%, #ddd6f3 100%);
+  touch-action: none;
 }
 
 body.unlocked {
@@ -16,11 +17,28 @@ body.unlocked {
   background-image: radial-gradient(#e6ffe6 20%, #ddd6f3 100%);
 }
 
+a {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+a:link {
+  color: #2a5db0;
+}
+a:visited {
+  color: #2a5db0;
+}
+a:hover {
+  color: #6f99dc;
+}
+a:active {
+  color: #234d90;
+}
+
 /* Lock SVG */
 
 .lock-container {
   position: relative;
-  width: 40%;
   max-width: 400px;
   margin-left: auto;
   margin-right: auto;
@@ -121,25 +139,91 @@ body.unlocked {
   position: absolute;
   left: 0;
   top: 0;
-  width: 270px;
+  width: 370px;
   margin-left: 20px;
   margin-top: 20px;
   padding: 20px;
-  border: 3px solid #333;
-  border-radius: 25px;
+  border-radius: 5px;
   background-color: #fff;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
 }
 
-.meta-paragraph {
+.meta-title {
   text-align: center;
-  font-size: 15px;
+  font-size: 18px;
   margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.meta-subtitle {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.meta-hint {
+  text-align: center;
+  font-size: 13px;
+  margin-bottom: 0;
+  color: #999;
+}
+
+.meta-hint a {
+  color: #999;
+  text-decoration: none;
 }
 
 .meta-solution {
+  text-align: center;
   background-color: #bdb0e8;
   border-radius: 30px;
   padding: 20px;
-  margin: 0 20px;
+  margin: 20px 70px;
   font-size: 35px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+}
+
+.meta-instructions {
+  margin-top: 20px;
+}
+
+.instructions-block {
+  background-color: rgba(239, 235, 249, 0.5);
+  border-radius: 5px;
+  box-shadow: 0 0px 4px -1px rgba(0, 0, 0, 0.2);
+  margin: 20px 0 0;
+  padding: 15px;
+}
+
+.instructions-title {
+  color: #999;
+  font-weight: normal;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.instructions-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 5px;
+}
+
+.instructions-listItem {
+  font-size: 14px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  text-align: justify;
+}
+
+.instructions-listItem:first-child {
+  padding-top: 0;
+}
+
+.instructions-listItem:last-child {
+  padding-bottom: 0;
 }
