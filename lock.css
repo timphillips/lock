@@ -3,18 +3,17 @@ html {
 }
 
 body {
+  display: flex;
   height: 100%;
   margin: 0;
   color: #333;
   font-family: "Arial";
-  background-color: #fbcfcf;
-  background-image: radial-gradient(#fbcfcf 20%, #ddd6f3 100%);
   touch-action: none;
+  background-color: #ddd6f3;
 }
 
 body.unlocked {
-  background-color: #e6ffe6;
-  background-image: radial-gradient(#e6ffe6 20%, #ddd6f3 100%);
+  background-color: #ddd6f3;
 }
 
 a {
@@ -38,13 +37,23 @@ a:active {
 /* Lock SVG */
 
 .lock-container {
+  flex: 1;
+  max-width: 1000px;
+  background-image: radial-gradient(#fbcfcf 30%, #ddd6f3 70%);
+}
+
+body.unlocked .lock-container {
+  background-image: radial-gradient(#e6ffe6 30%, #ddd6f3 70%);
+}
+
+.lock {
   position: relative;
-  max-width: 400px;
+  max-width: 500px;
   margin-left: auto;
   margin-right: auto;
 }
 
-.lock {
+.lock-svg {
   display: inline-block;
   position: absolute;
   top: 0;
@@ -135,11 +144,15 @@ a:active {
 
 /* Meta box */
 
+.meta-container {
+  width: 460px;
+}
+
 .meta {
   position: absolute;
   left: 0;
   top: 0;
-  width: 370px;
+  width: 380px;
   margin-left: 20px;
   margin-top: 20px;
   padding: 20px;
@@ -190,6 +203,14 @@ a:active {
 
 .meta-instructions {
   margin-top: 20px;
+}
+
+.meta-instructions--hidden {
+  display: none;
+}
+
+.meta-instructions--visible {
+  display: initial;
 }
 
 .instructions-block {
