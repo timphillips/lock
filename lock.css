@@ -42,7 +42,7 @@ a:active {
   background-image: radial-gradient(#fbcfcf 30%, #ddd6f3 70%);
 }
 
-body.unlocked .lock-container {
+.lock-container--unlokced {
   background-image: radial-gradient(#e6ffe6 30%, #ddd6f3 70%);
 }
 
@@ -185,6 +185,10 @@ body.unlocked .lock-container {
 .meta-hint a {
   color: #999;
   text-decoration: none;
+}
+
+.meta-hint a:hover {
+  color: #808080;
 }
 
 .meta-solution {
