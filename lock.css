@@ -34,7 +34,7 @@ a:active {
   color: #234d90;
 }
 
-/* Lock SVG */
+/* Lock */
 
 .lock-container {
   flex: 1;
@@ -49,15 +49,9 @@ a:active {
 .lock {
   position: relative;
   max-width: 500px;
+  height: 90%;
   margin-left: auto;
   margin-right: auto;
-}
-
-.lock-svg {
-  display: inline-block;
-  position: absolute;
-  top: 0;
-  left: 0;
 }
 
 .lock-handle {
@@ -66,6 +60,10 @@ a:active {
   stroke: #000000;
   stroke-width: 40;
   transition: stroke 0.2s linear;
+}
+
+.lock-handle:hover {
+  stroke: #333;
 }
 
 .lock-circle-outer {
@@ -93,6 +91,11 @@ a:active {
   stroke: black;
   transform-origin: 50% 50%;
   transition: fill 0.2s linear, stroke 0.2s linear;
+}
+
+.lock-spinner:hover {
+  fill: #333;
+  stroke: #333;
 }
 
 .lock-number {
@@ -133,28 +136,11 @@ a:active {
   }
 }
 
-.lock-handle:hover {
-  stroke: #333;
-}
-
-.lock-spinner:hover {
-  fill: #333;
-  stroke: #333;
-}
-
 /* Meta box */
 
-.meta-container {
-  width: 460px;
-}
-
 .meta {
-  position: absolute;
-  left: 0;
-  top: 0;
   width: 380px;
-  margin-left: 20px;
-  margin-top: 20px;
+  margin: 20px;
   padding: 20px;
   border-radius: 5px;
   background-color: #fff;
@@ -196,13 +182,15 @@ a:active {
   background-color: #bdb0e8;
   border-radius: 30px;
   padding: 20px;
-  margin: 20px 70px;
+  margin-left: auto;
+  margin-right: auto;
   font-size: 35px;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
   box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+  max-width: 250px;
 }
 
 .meta-instructions {
@@ -251,4 +239,37 @@ a:active {
 
 .instructions-listItem:last-child {
   padding-bottom: 0;
+}
+
+@media only screen and (max-width: 1024px) {
+  body {
+    flex-direction: column;
+  }
+
+  .meta {
+    width: initial;
+    margin: 0;
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+
+  .meta-title {
+    display: none;
+  }
+
+  .meta-subtitle {
+    margin-bottom: 10px;
+  }
+
+  .meta-solution {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 10px;
+    font-size: 25px;
+    max-width: 200px;
+  }
+
+  .lock-container {
+    max-height: calc(100% - 200px);
+  }
 }
