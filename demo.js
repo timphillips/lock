@@ -9,24 +9,57 @@
   const { map, merge, withLatestFrom } = rxjs.operators;
   const { fromEvent } = rxjs;
 
+  function getOriginCoordinates(element) {
+    const bounding = element.getBoundingClientRect();
+    return {
+      x: bounding.x + bounding.width / 2,
+      y: bounding.y + bounding.height / 2
+    };
+  }
+
+  function mouseEventToCoordinate(mouseEvent) {
+    mouseEvent.preventDefault();
+    return {
+      x: mouseEvent.clientX,
+      y: mouseEvent.clientY
+    };
+  }
+
+  function mapTouchEventToCoordinate(touchEvent) {
+    touchEvent.preventDefault();
+    return {
+      x: touchEvent.changedTouches[0].clientX,
+      y: touchEvent.changedTouches[0].clientY
+    };
+  }
+
+  function toggleInstructions(instructionsElement) {
+    const isVisible = instructionsElement.classList.contains("meta-instructions--visible");
+    if (isVisible) {
+      instructionsElement.classList.add("meta-instructions--hidden");
+      instructionsElement.classList.remove("meta-instructions--visible");
+    } else {
+      instructionsElement.classList.add("meta-instructions--visible");
+      instructionsElement.classList.remove("meta-instructions--hidden");
+    }
+  }
+
+  function toggleLockHandle(lockContainerElement, handleElement, isUnlocked) {
+    if (isUnlocked) {
+      if (lockContainerElement.classList.contains("lock-container--unlokced")) {
+        handleElement.classList.add("lock-handle--closed");
+        lockContainerElement.classList.remove("lock-container--unlokced");
+      } else {
+        handleElement.classList.add("lock-handle--open");
+        lockContainerElement.classList.add("lock-container--unlokced");
+      }
+    } else {
+      handleElement.classList.add("lock-handle--closed");
+    }
+  }
+
   function initializeCombinationLock() {
     const tickCount = 40;
-
-    function mouseEventToCoordinate(mouseEvent) {
-      mouseEvent.preventDefault();
-      return {
-        x: mouseEvent.clientX,
-        y: mouseEvent.clientY
-      };
-    }
-
-    function mapTouchEventToCoordinate(touchEvent) {
-      touchEvent.preventDefault();
-      return {
-        x: touchEvent.changedTouches[0].clientX,
-        y: touchEvent.changedTouches[0].clientY
-      };
-    }
 
     const lockContainerElement = document.getElementById("lock-container");
     const handleElement = document.getElementById("lock-handle");
@@ -35,14 +68,14 @@
     const toggleInstructionsElement = document.getElementById("meta-toggleInstructions");
     const instructionsElement = document.getElementById("meta-instructions");
 
-    const mouseDownStream = fromEvent(document, "mousedown").pipe(map(mouseEventToCoordinate));
-    const mouseUpStream = fromEvent(document, "mouseup").pipe(map(mouseEventToCoordinate));
-    const mouseMoveStream = fromEvent(document, "mousemove").pipe(map(mouseEventToCoordinate));
-    const touchStartStream = fromEvent(document, "touchstart").pipe(map(mapTouchEventToCoordinate));
-    const touchEndStream = fromEvent(document, "touchend").pipe(map(mapTouchEventToCoordinate));
-    const touchMoveStream = fromEvent(document, "touchmove").pipe(map(mapTouchEventToCoordinate));
+    const mouseDownStream = fromEvent(lockContainerElement, "mousedown").pipe(map(mouseEventToCoordinate));
+    const mouseUpStream = fromEvent(lockContainerElement, "mouseup").pipe(map(mouseEventToCoordinate));
+    const mouseMoveStream = fromEvent(lockContainerElement, "mousemove").pipe(map(mouseEventToCoordinate));
+    const touchStartStream = fromEvent(lockContainerElement, "touchstart").pipe(map(mapTouchEventToCoordinate));
+    const touchEndStream = fromEvent(lockContainerElement, "touchend").pipe(map(mapTouchEventToCoordinate));
+    const touchMoveStream = fromEvent(lockContainerElement, "touchmove").pipe(map(mapTouchEventToCoordinate));
     const handleClickStream = fromEvent(handleElement, "click");
-    const handleTouchEndStream = fromEvent(document, "touchend");
+    const handleTouchEndStream = fromEvent(handleElement, "touchend");
     const toggleInstructionsStream = fromEvent(toggleInstructionsElement, "click");
 
     const handleStream = handleClickStream.pipe(merge(handleTouchEndStream));
@@ -53,16 +86,8 @@
     const combination = lock.getNewCombination(tickCount);
     solutionElement.innerHTML = combination.join(" • ");
 
-    const getOriginCoordinates = () => {
-      const bounding = spinnerElement.getBoundingClientRect();
-      return {
-        x: bounding.x + bounding.width / 2,
-        y: bounding.y + bounding.height / 2
-      };
-    };
-
     const rotationStream = lock.createRotationStream(
-      getOriginCoordinates,
+      () => getOriginCoordinates(spinnerElement),
       moveStartStream,
       moveEndStream,
       moveStream,
@@ -81,35 +106,16 @@
       },
       false
     );
-    handleStream.pipe(withLatestFrom(unlockedStream)).subscribe(([_, unlocked]) => {
-      if (unlocked) {
-        if (lockContainerElement.classList.contains("lock-container--unlokced")) {
-          handleElement.classList.add("lock-handle--closed");
-          lockContainerElement.classList.remove("lock-container--unlokced");
-        } else {
-          handleElement.classList.add("lock-handle--open");
-          lockContainerElement.classList.add("lock-container--unlokced");
-        }
-      } else {
-        handleElement.classList.add("lock-handle--closed");
-      }
-    });
+
+    handleStream
+      .pipe(withLatestFrom(unlockedStream))
+      .subscribe(([_, isUnlocked]) => toggleLockHandle(lockContainerElement, handleElement, isUnlocked));
 
     rotationStream.subscribe(newRotation => {
       spinnerElement.setAttribute("transform", `rotate(${newRotation})`);
     });
 
-    toggleInstructionsStream.subscribe(e => {
-      e.preventDefault();
-      const isVisible = instructionsElement.classList.contains("meta-instructions--visible");
-      if (isVisible) {
-        instructionsElement.classList.add("meta-instructions--hidden");
-        instructionsElement.classList.remove("meta-instructions--visible");
-      } else {
-        instructionsElement.classList.add("meta-instructions--visible");
-        instructionsElement.classList.remove("meta-instructions--hidden");
-      }
-    });
+    toggleInstructionsStream.subscribe(() => toggleInstructions(instructionsElement));
 
     // debug output
     numberStream.subscribe(number => console.log("Number", number));
