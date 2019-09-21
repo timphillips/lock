@@ -1,10 +1,11 @@
-﻿(() => {
+﻿const initializeCombinationLock = (() => {
   if (!lock) {
     throw new Error("Unable to find global lock library.");
   }
   if (!rxjs) {
     throw new Error("Unable to find global rxjs library.");
   }
+
   const { map, merge, withLatestFrom } = rxjs.operators;
   const { fromEvent } = rxjs;
 
@@ -121,6 +122,5 @@
     });
   }
 
-  // Here we go!
-  initializeCombinationLock();
+  return initializeCombinationLock;
 })();
