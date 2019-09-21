@@ -48,8 +48,7 @@ a:active {
 
 .lock {
   position: relative;
-  max-width: 500px;
-  height: 90%;
+  height: 85%;
   margin-left: auto;
   margin-right: auto;
 }
@@ -145,6 +144,40 @@ a:active {
   border-radius: 5px;
   background-color: #fff;
   box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+}
+
+.meta-expand {
+  display: none;
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 24px;
+  height: 21px;
+  cursor: pointer;
+}
+
+.meta-expandIcon {
+  border: solid #d9d9d9;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 3px;
+  width: 4px;
+  height: 4px;
+}
+
+.meta-expandIcon--down {
+  transform: rotate(45deg);
+  margin: 1px 5px;
+}
+
+.meta-expandIcon--up {
+  transform: rotate(-135deg);
+  margin: 7px 5px;
+}
+
+.meta-expandIcon:active,
+.meta-expandIcon:hover {
+  border-color: #bfbfbf;
 }
 
 .meta-title {
@@ -251,10 +284,22 @@ a:active {
     margin: 0;
     padding-top: 15px;
     padding-bottom: 15px;
+    border-radius: 0;
   }
 
-  .meta-title {
+  .meta-expand {
+    display: inherit;
+  }
+
+  .meta-hint,
+  .meta-title,
+  .meta-subtitle {
     display: none;
+  }
+
+  .meta--expanded .meta-title,
+  .meta--expanded .meta-subtitle {
+    display: inherit;
   }
 
   .meta-subtitle {
@@ -271,5 +316,9 @@ a:active {
 
   .lock-container {
     max-height: calc(100% - 200px);
+  }
+
+  .lock {
+    height: 95%;
   }
 }

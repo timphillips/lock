@@ -5,13 +5,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.3.3/rxjs.umd.min.js" defer></script>
     <script type="text/javascript" src="lock.js" defer></script>
     <script type="text/javascript" src="demo.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="lock.css" />
+    <link rel="stylesheet" type="text/css" href="demo.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover" />
   </head>
 
   <body onload="initializeCombinationLock()">
     <div class="meta-container">
-      <div class="meta">
+      <div class="meta" id="meta">
+        <div class="meta-expand" id="meta-expand">
+          <i class="meta-expandIcon meta-expandIcon--down" id="meta-expandIcon"></i>
+        </div>
         <p class="meta-title">
           An interactive combination lock built with
           <a class="meta-link" target="_blank" href="https://rxjs-dev.firebaseapp.com/">RxJS</a>.

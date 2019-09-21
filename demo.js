@@ -44,6 +44,23 @@
     }
   }
 
+  function toggleExpand(expandIconElement, metaElement, instructionsElement) {
+    const isExpanded = expandIconElement.classList.contains("meta-expandIcon--up");
+    if (isExpanded) {
+      expandIconElement.classList.add("meta-expandIcon--down");
+      expandIconElement.classList.remove("meta-expandIcon--up");
+      metaElement.classList.remove("meta--expanded");
+      instructionsElement.classList.add("meta-instructions--hidden");
+      instructionsElement.classList.remove("meta-instructions--visible");
+    } else {
+      expandIconElement.classList.add("meta-expandIcon--up");
+      expandIconElement.classList.remove("meta-expandIcon--down");
+      metaElement.classList.add("meta--expanded");
+      instructionsElement.classList.add("meta-instructions--visible");
+      instructionsElement.classList.remove("meta-instructions--hidden");
+    }
+  }
+
   function toggleLockHandle(lockContainerElement, handleElement, isUnlocked) {
     if (isUnlocked) {
       if (lockContainerElement.classList.contains("lock-container--unlokced")) {
@@ -65,6 +82,9 @@
     const handleElement = document.getElementById("lock-handle");
     const spinnerElement = document.getElementById("lock-spinner");
     const solutionElement = document.getElementById("meta-solution");
+    const metaElement = document.getElementById("meta");
+    const expandElement = document.getElementById("meta-expand");
+    const expandIconElement = document.getElementById("meta-expandIcon");
     const toggleInstructionsElement = document.getElementById("meta-toggleInstructions");
     const instructionsElement = document.getElementById("meta-instructions");
 
@@ -77,6 +97,7 @@
     const handleClickStream = fromEvent(handleElement, "click");
     const handleTouchEndStream = fromEvent(handleElement, "touchend");
     const toggleInstructionsStream = fromEvent(toggleInstructionsElement, "click");
+    const toggleExpandStream = fromEvent(expandElement, "click");
 
     const handleStream = handleClickStream.pipe(merge(handleTouchEndStream));
     const moveStartStream = mouseDownStream.pipe(merge(touchStartStream));
@@ -116,6 +137,7 @@
     });
 
     toggleInstructionsStream.subscribe(() => toggleInstructions(instructionsElement));
+    toggleExpandStream.subscribe(() => toggleExpand(expandIconElement, metaElement, instructionsElement));
 
     // debug output
     numberStream.subscribe(number => console.log("Number", number));
