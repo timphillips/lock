@@ -39,6 +39,18 @@ const lock = (() => {
     return ((angleOfPoint3 - angleOfPoint2) * 180) / Math.PI;
   }
 
+  function getNewCombination(tickCount) {
+    var combination = [];
+    while (combination.length < 3) {
+      const number = Math.floor(Math.random() * tickCount);
+      // skip duplicate numbers and don't start with 0
+      if (combination.indexOf(number) === -1 && !(combination.length === 0 && number === 0)) {
+        combination.push(number);
+      }
+    }
+    return combination;
+  }
+
   /**
    * Returns an observable that emits the current rotation of the lock's spinner
    * element in the DOM, which is computed based on the given mouse drag events.
@@ -140,7 +152,6 @@ const lock = (() => {
   function createDirectionStream(numberStream, tickCount) {
     return numberStream.pipe(
       pairwise(),
-      filter(([previous, next]) => previous !== next),
       map(([previous, next]) => {
         if (previous === tickCount - 1 && next === 0) {
           return "counterclockwise";
@@ -163,16 +174,14 @@ const lock = (() => {
    */
   function createResetStream(numberStream, directionStream) {
     return directionStream.pipe(
-      switchMap(direction => {
-        if (direction === "clockwise") {
-          return numberStream.pipe(
-            filter(number => number === 0),
-            bufferCount(3),
-            mapTo(true)
-          );
-        }
-        return never(); // reset will never happen when rotating counterclockwise
-      }),
+      filter(direction => direction === "clockwise"), // reset will only happen when rotating clockwise
+      switchMap(() =>
+        numberStream.pipe(
+          filter(number => number === 0),
+          bufferCount(3),
+          mapTo(true)
+        )
+      ),
       startWith(true)
     );
   }
@@ -187,7 +196,7 @@ const lock = (() => {
    */
   function createUnlockedStream(resetStream, numberStream, directionStream, combination) {
     // after reset event...
-    return resetStream.pipe(
+    const unlockStream = resetStream.pipe(
       switchMap(() =>
         // ...emit when rotation direction switches to counterclockwise after correct first number...
         directionStream.pipe(
@@ -214,25 +223,30 @@ const lock = (() => {
       // ...then emit when counterclockwise rotation continues to the third number...unlocked!
       switchMap(() =>
         numberStream.pipe(
-          debounceTime(100),
+          debounceTime(250), // require actually stopping at the last number
           filter(number => number === combination[2])
         )
       ),
-      mapTo(true),
+      mapTo(true)
+    );
+
+    // when the lock is unlocked, start listening for the next number so that
+    // the lock is re-locked
+    var unlockStreamWithReset = unlockStream.pipe(
+      filter(isUnlocked => isUnlocked),
+      switchMap(() =>
+        numberStream.pipe(
+          // after being unlocked, any subsequent event from the number stream
+          // should switch back to a locked state ("false")
+          mapTo(false),
+          startWith(true),
+          take(2) // only listen until the lock is re-locked ("true" and then "false")
+        )
+      ),
       startWith(false)
     );
-  }
 
-  function getNewCombination(tickCount) {
-    var combination = [];
-    while (combination.length < 3) {
-      const number = Math.floor(Math.random() * tickCount);
-      // skip duplicate numbers and don't start with 0
-      if (combination.indexOf(number) === -1 && !(combination.length === 0 && number === 0)) {
-        combination.push(number);
-      }
-    }
-    return combination;
+    return unlockStreamWithReset;
   }
 
   return {

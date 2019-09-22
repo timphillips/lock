@@ -42,7 +42,7 @@ a:active {
   background-image: radial-gradient(#fbcfcf 30%, #ddd6f3 70%);
 }
 
-.lock-container--unlokced {
+.lock-container--unlocked {
   background-image: radial-gradient(#e6ffe6 30%, #ddd6f3 70%);
 }
 
@@ -303,7 +303,7 @@ a:active {
   }
 
   .meta-subtitle {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
   }
 
   .meta-solution {

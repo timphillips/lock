@@ -63,15 +63,16 @@
 
   function toggleLockHandle(lockContainerElement, handleElement, isUnlocked) {
     if (isUnlocked) {
-      if (lockContainerElement.classList.contains("lock-container--unlokced")) {
+      if (lockContainerElement.classList.contains("lock-container--unlocked")) {
         handleElement.classList.add("lock-handle--closed");
-        lockContainerElement.classList.remove("lock-container--unlokced");
+        lockContainerElement.classList.remove("lock-container--unlocked");
       } else {
         handleElement.classList.add("lock-handle--open");
-        lockContainerElement.classList.add("lock-container--unlokced");
+        lockContainerElement.classList.add("lock-container--unlocked");
       }
     } else {
       handleElement.classList.add("lock-handle--closed");
+      lockContainerElement.classList.remove("lock-container--unlocked");
     }
   }
 
@@ -143,11 +144,7 @@
     numberStream.subscribe(number => console.log("Number", number));
     directionStream.subscribe(direction => console.log("Direction", direction));
     resetStream.subscribe(() => console.log("Reset"));
-    unlockedStream.subscribe(unlocked => {
-      if (unlocked) {
-        console.log("Unlock!");
-      }
-    });
+    unlockedStream.subscribe(unlocked => console.log(unlocked ? "Unlocked!" : "Locked"));
   }
 
   return initializeCombinationLock;
