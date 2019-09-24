@@ -12,10 +12,6 @@ body {
   background-color: #ddd6f3;
 }
 
-body.unlocked {
-  background-color: #ddd6f3;
-}
-
 a {
   text-decoration: underline;
   cursor: pointer;
@@ -84,6 +80,10 @@ a:active {
   stroke-width: 1;
 }
 
+.lock-dial--reset {
+  animation: lockDial-reset-pulse 0.4s;
+}
+
 .lock-spinner {
   cursor: pointer;
   transform-box: fill-box;
@@ -132,6 +132,18 @@ a:active {
   }
   100% {
     transform: translateY(0);
+  }
+}
+
+@keyframes lockDial-reset-pulse {
+  0% {
+    fill: rgb(255, 110, 110);
+  }
+  50% {
+    fill: rgb(252, 18, 18);
+  }
+  100% {
+    fill: rgb(255, 110, 110);
   }
 }
 
@@ -302,8 +314,8 @@ a:active {
     display: inherit;
   }
 
-  .meta-subtitle {
-    margin-bottom: 15px;
+  .meta--expanded .meta-solution {
+    display: none;
   }
 
   .meta-solution {
@@ -319,6 +331,6 @@ a:active {
   }
 
   .lock {
-    height: 95%;
+    height: 100%;
   }
 }

@@ -113,6 +113,18 @@ const lock = (() => {
       }),
       pairwise(),
       switchMap(([previous, next]) => {
+        // If the lock is rotated very quickly then the lock may rotate through
+        // multiple numbers in one frame. However, this number stream should
+        // emit *every* number that the lock is rotated through (this is needed,
+        // for example, to ensure that rotating past 0 is detected when resetting
+        // the lock). This extra bit of code adds the extra numbers that might
+        // have been missed. For example, if rotating clockwise:
+        // - Previous rotation: 342
+        // - Next rotation: 27
+        // - Previous number: 342 / 360 * 40 = 38
+        // - Next number: 27 / 360 * 40 = 3
+        // - So, rather than emitting 3 directly after 38, we make sure that this
+        //   stream emits [39, 0, 1, 2, 3]
         const numbersBetweenIfCounterclockwise = Math.min(
           ...[next - previous, next - previous + tickCount, tickCount].filter(num => num >= 0)
         );

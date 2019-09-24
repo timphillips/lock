@@ -6,7 +6,7 @@
     throw new Error("Unable to find global rxjs library.");
   }
 
-  const { map, merge, withLatestFrom } = rxjs.operators;
+  const { map, merge, skip, withLatestFrom } = rxjs.operators;
   const { fromEvent } = rxjs;
 
   function getOriginCoordinates(element) {
@@ -76,10 +76,15 @@
     }
   }
 
+  function onReset(lockDialElement) {
+    lockDialElement.classList.add("lock-dial--reset");
+  }
+
   function initializeCombinationLock() {
     const tickCount = 40;
 
     const lockContainerElement = document.getElementById("lock-container");
+    const lockDialElement = document.getElementById("lock-dial");
     const handleElement = document.getElementById("lock-handle");
     const spinnerElement = document.getElementById("lock-spinner");
     const solutionElement = document.getElementById("meta-solution");
@@ -129,6 +134,12 @@
       false
     );
 
+    lockDialElement.addEventListener(
+      "webkitAnimationEnd",
+      () => lockDialElement.classList.remove("lock-dial--reset"),
+      false
+    );
+
     handleStream
       .pipe(withLatestFrom(unlockedStream))
       .subscribe(([_, isUnlocked]) => toggleLockHandle(lockContainerElement, handleElement, isUnlocked));
@@ -139,6 +150,7 @@
 
     toggleInstructionsStream.subscribe(() => toggleInstructions(instructionsElement));
     toggleExpandStream.subscribe(() => toggleExpand(expandIconElement, metaElement, instructionsElement));
+    resetStream.pipe(skip(1)).subscribe(() => onReset(lockDialElement)); // skip first reset on initial load
 
     // debug output
     numberStream.subscribe(number => console.log("Number", number));
