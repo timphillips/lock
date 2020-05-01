@@ -161,15 +161,15 @@ a:active {
 .meta-expand {
   display: none;
   position: absolute;
-  left: 5px;
-  top: 5px;
+  left: 10px;
+  top: 10px;
   width: 24px;
   height: 21px;
   cursor: pointer;
 }
 
 .meta-expandIcon {
-  border: solid #d9d9d9;
+  border: solid rgba(0, 0, 0, 0.4);
   border-width: 0 3px 3px 0;
   display: inline-block;
   padding: 3px;
@@ -189,12 +189,13 @@ a:active {
 
 .meta-expandIcon:active,
 .meta-expandIcon:hover {
-  border-color: #bfbfbf;
+  border-color: rgba(0, 0, 0, 0.7);
 }
 
 .meta-title {
   text-align: center;
   font-size: 18px;
+  font-weight: normal;
   margin-top: 0;
   margin-bottom: 10px;
 }
@@ -309,6 +310,11 @@ a:active {
     display: none;
   }
 
+  .meta--expanded {
+    height: 100vh;
+    box-sizing: border-box;
+  }
+
   .meta--expanded .meta-title,
   .meta--expanded .meta-subtitle {
     display: inherit;
@@ -328,6 +334,10 @@ a:active {
 
   .lock-container {
     max-height: calc(100% - 200px);
+  }
+
+  .lock-container--hidden {
+    display: none;
   }
 
   .lock {

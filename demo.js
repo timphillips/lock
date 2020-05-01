@@ -1,4 +1,4 @@
-﻿const initializeCombinationLock = (() => {
+﻿const init = (() => {
   if (!lock) {
     throw new Error("Unable to find global lock library.");
   }
@@ -8,6 +8,14 @@
 
   const { map, merge, skip, withLatestFrom } = rxjs.operators;
   const { fromEvent } = rxjs;
+  const {
+    getNewCombination,
+    createRotationStream,
+    createNumberStream,
+    createDirectionStream,
+    createResetStream,
+    createUnlockedStream
+  } = lock;
 
   function getOriginCoordinates(element) {
     const bounding = element.getBoundingClientRect();
@@ -17,7 +25,7 @@
     };
   }
 
-  function mouseEventToCoordinate(mouseEvent) {
+  function mapMouseEventToCoordinate(mouseEvent) {
     mouseEvent.preventDefault();
     return {
       x: mouseEvent.clientX,
@@ -33,31 +41,22 @@
     };
   }
 
-  function toggleInstructions(instructionsElement) {
-    const isVisible = instructionsElement.classList.contains("meta-instructions--visible");
-    if (isVisible) {
-      instructionsElement.classList.add("meta-instructions--hidden");
-      instructionsElement.classList.remove("meta-instructions--visible");
-    } else {
-      instructionsElement.classList.add("meta-instructions--visible");
-      instructionsElement.classList.remove("meta-instructions--hidden");
-    }
-  }
-
-  function toggleExpand(expandIconElement, metaElement, instructionsElement) {
-    const isExpanded = expandIconElement.classList.contains("meta-expandIcon--up");
+  function toggleInstructions(expandIconElement, metaElement, instructionsElement, lockContainerElement) {
+    const isExpanded = metaElement.classList.contains("meta--expanded");
     if (isExpanded) {
       expandIconElement.classList.add("meta-expandIcon--down");
       expandIconElement.classList.remove("meta-expandIcon--up");
       metaElement.classList.remove("meta--expanded");
       instructionsElement.classList.add("meta-instructions--hidden");
       instructionsElement.classList.remove("meta-instructions--visible");
+      lockContainerElement.classList.remove("lock-container--hidden");
     } else {
       expandIconElement.classList.add("meta-expandIcon--up");
       expandIconElement.classList.remove("meta-expandIcon--down");
       metaElement.classList.add("meta--expanded");
       instructionsElement.classList.add("meta-instructions--visible");
       instructionsElement.classList.remove("meta-instructions--hidden");
+      lockContainerElement.classList.add("lock-container--hidden");
     }
   }
 
@@ -94,9 +93,9 @@
     const toggleInstructionsElement = document.getElementById("meta-toggleInstructions");
     const instructionsElement = document.getElementById("meta-instructions");
 
-    const mouseDownStream = fromEvent(lockContainerElement, "mousedown").pipe(map(mouseEventToCoordinate));
-    const mouseUpStream = fromEvent(lockContainerElement, "mouseup").pipe(map(mouseEventToCoordinate));
-    const mouseMoveStream = fromEvent(lockContainerElement, "mousemove").pipe(map(mouseEventToCoordinate));
+    const mouseDownStream = fromEvent(lockContainerElement, "mousedown").pipe(map(mapMouseEventToCoordinate));
+    const mouseUpStream = fromEvent(lockContainerElement, "mouseup").pipe(map(mapMouseEventToCoordinate));
+    const mouseMoveStream = fromEvent(lockContainerElement, "mousemove").pipe(map(mapMouseEventToCoordinate));
     const touchStartStream = fromEvent(lockContainerElement, "touchstart").pipe(map(mapTouchEventToCoordinate));
     const touchEndStream = fromEvent(lockContainerElement, "touchend").pipe(map(mapTouchEventToCoordinate));
     const touchMoveStream = fromEvent(lockContainerElement, "touchmove").pipe(map(mapTouchEventToCoordinate));
@@ -110,20 +109,20 @@
     const moveEndStream = mouseUpStream.pipe(merge(touchEndStream));
     const moveStream = mouseMoveStream.pipe(merge(touchMoveStream));
 
-    const combination = lock.getNewCombination(tickCount);
+    const combination = getNewCombination(tickCount);
     solutionElement.innerHTML = combination.join(" • ");
 
-    const rotationStream = lock.createRotationStream(
+    const rotationStream = createRotationStream(
       () => getOriginCoordinates(spinnerElement),
       moveStartStream,
       moveEndStream,
       moveStream,
       tickCount
     );
-    const numberStream = lock.createNumberStream(rotationStream, tickCount);
-    const directionStream = lock.createDirectionStream(numberStream, tickCount);
-    const resetStream = lock.createResetStream(numberStream, directionStream);
-    const unlockedStream = lock.createUnlockedStream(resetStream, numberStream, directionStream, combination);
+    const numberStream = createNumberStream(rotationStream, tickCount);
+    const directionStream = createDirectionStream(numberStream, tickCount);
+    const resetStream = createResetStream(numberStream, directionStream);
+    const unlockedStream = createUnlockedStream(resetStream, numberStream, directionStream, combination);
 
     handleElement.addEventListener(
       "webkitAnimationEnd",
@@ -148,8 +147,9 @@
       spinnerElement.setAttribute("transform", `rotate(${newRotation})`);
     });
 
-    toggleInstructionsStream.subscribe(() => toggleInstructions(instructionsElement));
-    toggleExpandStream.subscribe(() => toggleExpand(expandIconElement, metaElement, instructionsElement));
+    toggleInstructionsStream
+      .pipe(merge(toggleExpandStream))
+      .subscribe(() => toggleInstructions(expandIconElement, metaElement, instructionsElement, lockContainerElement));
     resetStream.pipe(skip(1)).subscribe(() => onReset(lockDialElement)); // skip first reset on initial load
 
     // debug output

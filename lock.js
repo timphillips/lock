@@ -19,7 +19,7 @@ const lock = (() => {
     takeUntil,
     withLatestFrom
   } = rxjs.operators;
-  const { never, of } = rxjs;
+  const { of } = rxjs;
 
   /**
    * Calculates the angle (in degrees) from two vectors, one from point P1 to P2 and one from P1 to P3.
@@ -99,7 +99,7 @@ const lock = (() => {
   }
 
   /**
-   * Returns an observable that emits the number that the lock's dial is pointing to.
+   * Returns an observable that emits the tick that the lock's dial is pointing to.
    *
    * @param rotationStream Observable emitting the current rotation transformation of the lock element in the DOM.
    * @param tickCount Number of ticks in this combination lock.

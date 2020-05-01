@@ -1,27 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title>Lock | tim-phillips.com</title>
+    <meta name="description" content="An interactive combination lock built with RxJs." />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.3.3/rxjs.umd.min.js" defer></script>
     <script type="text/javascript" src="lock.js" defer></script>
     <script type="text/javascript" src="demo.js" defer></script>
     <link rel="stylesheet" type="text/css" href="demo.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover" />
   </head>
 
-  <body onload="initializeCombinationLock()">
-    <div class="meta-container">
+  <body onload="init()">
+    <div>
       <div class="meta" id="meta">
         <div class="meta-expand" id="meta-expand">
           <i class="meta-expandIcon meta-expandIcon--down" id="meta-expandIcon"></i>
         </div>
-        <p class="meta-title">
+        <h1 class="meta-title">
           An interactive combination lock built with
-          <a class="meta-link" target="_blank" href="https://rxjs-dev.firebaseapp.com/">RxJS</a>.
-        </p>
+          <a class="meta-link" rel="noopener noreferrer" target="_blank" href="https://rxjs-dev.firebaseapp.com/"
+            >RxJS</a
+          >.
+        </h1>
         <p class="meta-subtitle">
-          Created by <a class="meta-link" target="_blank" href="http:www.tim-phillips.com">Tim Phillips</a>. Source code
-          on <a class="meta-link" target="_blank" href="https://github.com/timphillips/lock">GitHub</a>.
+          Created by
+          <a class="meta-link" rel="noopener noreferrer" target="_blank" href="https://www.tim-phillips.com"
+            >Tim Phillips</a
+          >. Source code on
+          <a class="meta-link" rel="noopener noreferrer" target="_blank" href="https://github.com/timphillips/lock"
+            >GitHub</a
+          >.
         </p>
         <p class="meta-solution" id="meta-solution"></p>
         <p class="meta-hint" id="meta-toggleInstructions">
@@ -53,7 +60,7 @@
         </div>
       </div>
     </div>
-    <div class="lock-container" id="lock-container">
+    <main class="lock-container" id="lock-container">
       <div class="lock">
         <svg viewBox="0 0 400 650" width="100%" height="100%">
           <path
@@ -117,6 +124,6 @@
           <polygon points="200,275 188,263 212,263" class="lock-dial" id="lock-dial" />
         </svg>
       </div>
-    </div>
+    </main>
   </body>
 </html>
